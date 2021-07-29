@@ -1,7 +1,7 @@
 Reverse Proxy App
 =======================
 
-A lightweight and re-usable & configurable proxy app.
+A lightweight, re-usable & configurable proxy app.
 
 ## What problem are we solving?
 
