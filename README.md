@@ -5,7 +5,7 @@ A lightweight and re-usable & configurable proxy app.
 
 ## What problem are we solving?
 
-Skpr currently has no wau to proxy one end-point to another.
+Skpr currently has no way to proxy one end-point to another.
 
 ## Usage
 
