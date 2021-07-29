@@ -1,0 +1,53 @@
+# github.com/alecthomas/kingpin v2.2.6+incompatible
+## explicit
+github.com/alecthomas/kingpin
+# github.com/alecthomas/template v0.0.0-20190718012654-fb15b899a751
+## explicit
+github.com/alecthomas/template
+github.com/alecthomas/template/parse
+# github.com/alecthomas/units v0.0.0-20210208195552-ff826a37aa15
+## explicit
+github.com/alecthomas/units
+# github.com/dgrijalva/jwt-go v3.2.0+incompatible
+## explicit
+github.com/dgrijalva/jwt-go
+# github.com/labstack/echo v3.3.10+incompatible
+## explicit
+github.com/labstack/echo
+github.com/labstack/echo/middleware
+# github.com/labstack/gommon v0.3.0
+## explicit
+github.com/labstack/gommon/bytes
+github.com/labstack/gommon/color
+github.com/labstack/gommon/log
+github.com/labstack/gommon/random
+# github.com/mattn/go-colorable v0.1.8
+## explicit
+github.com/mattn/go-colorable
+# github.com/mattn/go-isatty v0.0.12
+github.com/mattn/go-isatty
+# github.com/skpr/go-config v0.0.0-20191205022527-ebce9e870417
+## explicit
+github.com/skpr/go-config
+# github.com/valyala/bytebufferpool v1.0.0
+github.com/valyala/bytebufferpool
+# github.com/valyala/fasttemplate v1.2.1
+## explicit
+github.com/valyala/fasttemplate
+# golang.org/x/crypto v0.0.0-20210322153248-0c34fe9e7dc2
+## explicit
+golang.org/x/crypto/acme
+golang.org/x/crypto/acme/autocert
+# golang.org/x/net v0.0.0-20210405180319-a5a99cb37ef4
+## explicit
+golang.org/x/net/idna
+# golang.org/x/sys v0.0.0-20210403161142-5e06dd20ab57
+## explicit
+golang.org/x/sys/internal/unsafeheader
+golang.org/x/sys/unix
+# golang.org/x/text v0.3.6
+## explicit
+golang.org/x/text/secure/bidirule
+golang.org/x/text/transform
+golang.org/x/text/unicode/bidi
+golang.org/x/text/unicode/norm
