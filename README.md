@@ -11,10 +11,10 @@ Skpr currently has no way to proxy one end-point to another.
 
 The proxy should not need to be configured, but you can map a couple of 
 configurable values to the Skpr configuration using environment variables or
-command line arguments. This will override any skpr config values - and allow
-the proxy to be run without skpr config being utilized.
+command line arguments. This will override any Skpr config values - and allow
+the proxy to be run without Skpr config being utilized.
 
-The environment variable will instruct the proxy which skpr config key/value
+The environment variable will instruct the proxy which Skpr config key/value
 pair to use, for example `PROXY_APP_CONFIG_KEY_ENDPOINT` could be set to
 `elasticsearch.default.endpoint`.
 
