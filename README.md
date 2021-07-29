@@ -60,7 +60,7 @@ $ docker run -p 7000:7000 skpr/proxy-app
 Well, following the above arguments or command line flags, you can curl 
 `http://localhost:7000` and retrieve a 404 which will use the host header
 as `http://localhost:7000` but will proxy through to `https://www.google.com`
-which does not have content for the full url `http://localhost:7000`.
+. This endpoint does not have content for the hostname `http://localhost:7000`.
 
 **Example**:
 ```shell
