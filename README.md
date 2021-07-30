@@ -46,7 +46,7 @@ is 8080. The application will serve on port 7000 of the container, and the
 run command maps port 7000 on the host to port 7000 on the container.
 
 ```shell
-$ docker build --build-arg PROXY_APP_PORT=7000 --build-arg PROXY_APP_ENDPOINT=https://www.google.com -t skpr/proxy-app .
+$ docker build --build-arg PROXY_APP_PORT=:7000 --build-arg PROXY_APP_ENDPOINT=https://www.google.com -t skpr/proxy-app .
 $ docker run -p 7000:7000 skpr/proxy-app
 ```
 
