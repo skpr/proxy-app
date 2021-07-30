@@ -1,11 +1,12 @@
 package main
 
 import (
+	"crypto/subtle"
+	"errors"
 	"fmt"
 	"net/url"
 	"os"
 
-	"github.com/alecthomas/kingpin"
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
 
@@ -19,51 +20,38 @@ const (
 )
 
 var (
-	username = kingpin.Flag("username", "Username").String()
-	password = kingpin.Flag("password", "Password").String()
-	endpoint = kingpin.Flag("url", "URL to proxy service to, which includes the port.").Short('u').String()
-	port     = kingpin.Flag("port", "Port to expose the service to the host").Default("8080").Short('p').Int()
+	PROXY_APP_ENDPOINT string
+	PROXY_APP_USERNAME string
+	PROXY_APP_PASSWORD string
+	PROXY_APP_PORT string
 )
 
-func main() {
-
-	kingpin.Parse()
-
+func init() {
 	// Load the config.
-	config, err := skprconfig.Load()
-	if err == nil {
-		// If the parameters were supplied to the CLI, they should override the configuration.
-		if *endpoint == "" {
-			endpointEnvVar := os.Getenv(CONFIG_ENDPOINT)
-			*endpoint = config.GetWithFallback(endpointEnvVar, *endpoint)
-		}
-		if *username == "" {
-			usernameEnvVar := os.Getenv(CONFIG_USERNAME)
-			*username = config.GetWithFallback(usernameEnvVar, *endpoint)
-		}
-		if *password == "" {
-			passwordEnvVar := os.Getenv(CONFIG_PASSWORD)
-			*password = config.GetWithFallback(passwordEnvVar, *endpoint)
-		}
+	skprclient, err := skprconfig.Load()
+	if err != nil && !errors.Is(err, skprconfig.ErrNotFound) {
+		panic(err)
 	}
+	PROXY_APP_ENDPOINT = skprclient.GetWithFallback(os.Getenv(CONFIG_ENDPOINT), os.Getenv("PROXY_APP_ENDPOINT"))
+	PROXY_APP_USERNAME = skprclient.GetWithFallback(os.Getenv(CONFIG_USERNAME), os.Getenv("PROXY_APP_USERNAME"))
+	PROXY_APP_PASSWORD = skprclient.GetWithFallback(os.Getenv(CONFIG_PASSWORD), os.Getenv("PROXY_APP_PASSWORD"))
+
+	if PROXY_APP_PORT = os.Getenv("PROXY_APP_PORT"); PROXY_APP_PORT == "" {
+		PROXY_APP_PORT = "8080"
+	}
+
+	fmt.Println(PROXY_APP_PORT)
+	fmt.Println(os.Getenv("PROXY_APP_PORT"))
+}
+
+func main() {
 
 	e := echo.New()
 	e.Use(middleware.Recover())
 	e.Use(middleware.Logger())
 
-	// If the user has changed the endpoint via environment variable, respect this.
-	var urlToUse string
-	if *endpoint == "" {
-		urlToUse = os.Getenv(CONFIG_ENDPOINT)
-		if urlToUse == "" {
-			urlToUse = *endpoint
-		}
-	} else {
-		urlToUse = *endpoint
-	}
-
 	// Setup proxy
-	url, err := url.Parse(urlToUse)
+	url, err := url.Parse(PROXY_APP_ENDPOINT)
 	if err != nil {
 		e.Logger.Fatal(err)
 	}
@@ -73,26 +61,27 @@ func main() {
 		},
 	}
 
-	// If the user has changed the port via environment variable, respect this.
-	var portToUse string
-	if *port == 8080 {
-		portToUse = os.Getenv("PROXY_APP_PORT")
-		if portToUse == "" {
-			portToUse = fmt.Sprintf("%d", *port)
-		}
-	} else {
-		portToUse = fmt.Sprintf("%d", *port)
+	// Debug messaging.
+	fmt.Printf("Proxy configured to use port %s\n", PROXY_APP_PORT)
+	for _, target := range targets {
+		fmt.Printf("Starting proxy on http://localhost:%s for endpoint %s\n", PROXY_APP_PORT, target.URL)
 	}
 
-	// Debug messaging.
-	fmt.Printf("Proxy configured to use port %s\n", portToUse)
-	for _, target := range targets {
-		fmt.Printf("Starting proxy on http://localhost:%s for endpoint %s\n", portToUse, target.URL)
+	// Handle Authentication
+	if PROXY_APP_USERNAME != "" && PROXY_APP_PASSWORD != "" {
+		e.Use(middleware.BasicAuth(func(username, password string, c echo.Context) (bool, error) {
+			// Be careful to use constant time comparison to prevent timing attacks
+			if subtle.ConstantTimeCompare([]byte(username), []byte(PROXY_APP_USERNAME)) == 1 &&
+				subtle.ConstantTimeCompare([]byte(password), []byte(PROXY_APP_PASSWORD)) == 1 {
+				return true, nil
+			}
+			return false, nil
+		}))
 	}
 
 	// Start serving the proxy as configured.
 	e.Use(middleware.Proxy(middleware.NewRoundRobinBalancer(targets)))
-	localAddress := fmt.Sprintf(":%s", portToUse)
+	localAddress := fmt.Sprintf(":%s", PROXY_APP_PORT)
 	e.Logger.Fatal(e.Start(localAddress))
 
 }
