@@ -1,30 +1,18 @@
 FROM golang:latest AS builder
 
 LABEL stage=builder
-RUN mkdir -p /go/src/github.com/skpr/proxy
-COPY . /go/src/github.com/skpr/proxy
-WORKDIR /go/src/github.com/skpr/proxy
+RUN mkdir -p /go/src/github.com/skpr/proxy-app
+COPY . /go/src/github.com/skpr/proxy-app
+WORKDIR /go/src/github.com/skpr/proxy-app
 RUN GO111MODULE=on go mod vendor
 RUN GO111MODULE=on go mod verify
-RUN GO111MODULE=on GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -a -ldflags '-extldflags "-static"' -o pygmy-go-linux-amd64-static .
+RUN GO111MODULE=on GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -a -ldflags '-extldflags "-static"' -o proxy-app .
 
 FROM skpr/base:1.x
 
-ARG PROXY_APP_USERNAME
-ARG PROXY_APP_PASSWORD
-ARG PROXY_APP_ENDPOINT
-ARG PROXY_APP_PORT
+ENV PROXY_APP_ADDR=":8080"
 
-ENV PROXY_APP_USERNAME ${PROXY_APP_USERNAME:-}
-ENV PROXY_APP_PASSWORD ${PROXY_APP_PASSWORD:-}
-ENV PROXY_APP_ENDPOINT ${PROXY_APP_ENDPOINT:-}
-ENV PROXY_APP_PORT ${PROXY_APP_PORT:-}
+COPY --from=builder /go/src/github.com/skpr/proxy-app/proxy-app /usr/local/bin/proxy-app
+RUN chmod +x /usr/local/bin/proxy-app
 
-RUN apk add --no-cache tini
-ENTRYPOINT ["/sbin/tini", "--"]
-
-COPY --from=builder /go/src/github.com/skpr/proxy/pygmy-go-linux-amd64-static /bin/proxy
-RUN chmod +x /bin/proxy
-
-CMD ["/bin/proxy"]
-EXPOSE ${PROXY_APP_PORT}
+CMD ["/usr/local/bin/proxy-app"]

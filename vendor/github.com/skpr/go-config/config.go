@@ -2,6 +2,7 @@ package skprconfig
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -10,6 +11,11 @@ import (
 const (
 	// DefaultPath is the default file path used to mount config.
 	DefaultPath string = "/etc/skpr/data/config.json"
+)
+
+var (
+	// ErrNotFound is returned when Skpr configuration cannot be found.
+	ErrNotFound = errors.New("configuration not found")
 )
 
 // Config represents the config.
@@ -28,7 +34,7 @@ func Load(options ...func(config *Config)) (*Config, error) {
 	}
 
 	if _, err := os.Stat(config.path); os.IsNotExist(err) {
-		return config, fmt.Errorf("config file does not exist: %w", err)
+		return config, ErrNotFound
 	}
 
 	data, err := ioutil.ReadFile(config.path)
