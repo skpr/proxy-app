@@ -1,0 +1,33 @@
+project_name: proxy-app
+
+builds:
+  - id: proxy-app
+    main: .
+    binary: proxy-app
+    ldflags:
+      - -extldflags '-static'
+    env:
+      - CGO_ENABLED=0
+      - GO111MODULE=on
+    goos: [ linux ]
+    goarch: [ amd64 ]
+
+release:
+  prerelease: auto
+  name_template: "Skpr Proxy App {{.Version}}"
+
+  github:
+    owner: skpr
+    name: proxy-app
+
+dockers:
+  - binaries:
+      - proxy-app
+    builds:
+      - proxy-app
+    image_templates:
+      - skpr/proxy-app:latest
+      - skpr/proxy-app:{{ .Tag }}
+    dockerfile: Dockerfile
+    build_flag_templates:
+      - "--pull"
