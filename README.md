@@ -25,6 +25,14 @@ pair to use, for example `PROXY_APP_ENDPOINT` could be set to
 
 ### How to
 
+#### Using GoReleaser
+
+The release process is automated via [goreleaser](https://goreleaser.com/), and you can run it using the following:
+
+```shell
+$ goreleaser --snapshot --skip-publish --rm-dist
+```
+
 #### Build from source
 
 The command should be run from a project compatible with Skpr, so that your
@@ -49,7 +57,7 @@ run command maps port 7000 on the host to port 7000 on the container.
 $ docker build --build-arg PROXY_APP_ADDR=:7000 --build-arg PROXY_APP_ENDPOINT=https://www.skpr.com.au -t skpr/proxy-app .
 $ docker run -p 7000:7000 skpr/proxy-app
 # Or...
- docker run --rm -p 7000:7000 -e PROXY_APP_ADDR=:7000 -e PROXY_APP_ENDPOINT=https://www.skpr.com.au --name skpr-proxy skpr/proxy-app
+$ docker run --rm -p 7000:7000 -e PROXY_APP_ADDR=:7000 -e PROXY_APP_ENDPOINT=https://www.skpr.com.au --name skpr-proxy skpr/proxy-app
 ```
 
 #### Pull from DockerHub
