@@ -14,9 +14,9 @@ type RunParams struct {
 	Addr string
 	// Endpoint which this server will proxy to.
 	Endpoint string
-	// Username which will be used to authenicate with the proxy endpoint with basic authentication.
+	// Username which will be used to authenticate with the proxy endpoint with basic authentication.
 	Username string
-	// Password which will be used to authenicate with the proxy endpoint with basic authentication.
+	// Password which will be used to authenticate with the proxy endpoint with basic authentication.
 	Password string
 }
 

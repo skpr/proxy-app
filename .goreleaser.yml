@@ -31,3 +31,10 @@ dockers:
     dockerfile: Dockerfile
     build_flag_templates:
       - "--pull"
+    extra_files:
+      - internal
+      - vendor
+      - main.go
+      - go.sum
+      - go.mod
+      - LICENSE
