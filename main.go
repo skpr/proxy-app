@@ -1,98 +1,47 @@
 package main
 
 import (
-	"fmt"
-	"net/url"
+	"errors"
 	"os"
 
-	"github.com/alecthomas/kingpin"
-	"github.com/labstack/echo"
-	"github.com/labstack/echo/middleware"
-
 	skprconfig "github.com/skpr/go-config"
+	"github.com/skpr/proxy-app/internal/server"
 )
 
 const (
-	CONFIG_ENDPOINT = "PROXY_APP_CONFIG_KEY_ENDPOINT"
-	CONFIG_USERNAME = "PROXY_APP_CONFIG_KEY_USERNAME"
-	CONFIG_PASSWORD = "PROXY_APP_CONFIG_KEY_PASSWORD"
-)
+	// EnvSkprConfigKeyAddr used to load the address value from Skpr config.
+	EnvSkprConfigKeyAddr = "PROXY_APP_CONFIG_KEY_ADDR"
+	// EnvSkprConfigKeyEndpoint used to load the endpoint value from Skpr config.
+	EnvSkprConfigKeyEndpoint = "PROXY_APP_CONFIG_KEY_ENDPOINT"
+	// EnvSkprConfigKeyUsername used to load the username value from Skpr config.
+	EnvSkprConfigKeyUsername = "PROXY_APP_CONFIG_KEY_USERNAME"
+	// EnvSkprConfigKeyPassword used to load the password value from Skpr config.
+	EnvSkprConfigKeyPassword = "PROXY_APP_CONFIG_KEY_PASSWORD"
 
-var (
-	username = kingpin.Flag("username", "Username").String()
-	password = kingpin.Flag("password", "Password").String()
-	endpoint = kingpin.Flag("url", "URL to proxy service to, which includes the port.").Short('u').String()
-	port     = kingpin.Flag("port", "Port to expose the service to the host").Default("8080").Short('p').Int()
+	// EnvAddr sets the address for the proxy application.
+	EnvAddr = "PROXY_APP_ADDR"
+	// EnvEndpoint sets the endpoint for the proxy application.
+	EnvEndpoint = "PROXY_APP_ENDPOINT"
+	// EnvUsername sets the username for the proxy connection.
+	EnvUsername = "PROXY_APP_USERNAME"
+	// EnvPassword sets the password for the proxy connection.
+	EnvPassword = "PROXY_APP_PASSWORD"
 )
 
 func main() {
-
-	kingpin.Parse()
-
-	// Load the config.
-	config, err := skprconfig.Load()
-	if err == nil {
-		// If the parameters were supplied to the CLI, they should override the configuration.
-		if *endpoint == "" {
-			endpointEnvVar := os.Getenv(CONFIG_ENDPOINT)
-			*endpoint = config.GetWithFallback(endpointEnvVar, *endpoint)
-		}
-		if *username == "" {
-			usernameEnvVar := os.Getenv(CONFIG_USERNAME)
-			*username = config.GetWithFallback(usernameEnvVar, *endpoint)
-		}
-		if *password == "" {
-			passwordEnvVar := os.Getenv(CONFIG_PASSWORD)
-			*password = config.GetWithFallback(passwordEnvVar, *endpoint)
-		}
+	skprclient, err := skprconfig.Load()
+	if err != nil && !errors.Is(err, skprconfig.ErrNotFound) {
+		panic(err)
 	}
 
-	e := echo.New()
-	e.Use(middleware.Recover())
-	e.Use(middleware.Logger())
-
-	// If the user has changed the endpoint via environment variable, respect this.
-	var urlToUse string
-	if *endpoint == "" {
-		urlToUse = os.Getenv(CONFIG_ENDPOINT)
-		if urlToUse == "" {
-			urlToUse = *endpoint
-		}
-	} else {
-		urlToUse = *endpoint
+	params := server.RunParams{
+		Addr:     skprclient.GetWithFallback(os.Getenv(EnvSkprConfigKeyAddr), os.Getenv(EnvAddr)),
+		Endpoint: skprclient.GetWithFallback(os.Getenv(EnvSkprConfigKeyEndpoint), os.Getenv(EnvEndpoint)),
+		Username: skprclient.GetWithFallback(os.Getenv(EnvSkprConfigKeyUsername), os.Getenv(EnvUsername)),
+		Password: skprclient.GetWithFallback(os.Getenv(EnvSkprConfigKeyPassword), os.Getenv(EnvPassword)),
 	}
 
-	// Setup proxy
-	url, err := url.Parse(urlToUse)
-	if err != nil {
-		e.Logger.Fatal(err)
+	if err := server.Run(params); err != nil {
+		panic(err)
 	}
-	targets := []*middleware.ProxyTarget{
-		{
-			URL:  url,
-		},
-	}
-
-	// If the user has changed the port via environment variable, respect this.
-	var portToUse string
-	if *port == 8080 {
-		portToUse = os.Getenv("PROXY_APP_PORT")
-		if portToUse == "" {
-			portToUse = fmt.Sprintf("%d", *port)
-		}
-	} else {
-		portToUse = fmt.Sprintf("%d", *port)
-	}
-
-	// Debug messaging.
-	fmt.Printf("Proxy configured to use port %s\n", portToUse)
-	for _, target := range targets {
-		fmt.Printf("Starting proxy on http://localhost:%s for endpoint %s\n", portToUse, target.URL)
-	}
-
-	// Start serving the proxy as configured.
-	e.Use(middleware.Proxy(middleware.NewRoundRobinBalancer(targets)))
-	localAddress := fmt.Sprintf(":%s", portToUse)
-	e.Logger.Fatal(e.Start(localAddress))
-
 }
