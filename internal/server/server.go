@@ -59,7 +59,14 @@ func Run(params RunParams) error {
 	// Debug messaging - also add target to LB.
 	fmt.Printf("Starting proxy on addr: %s for endpoint: %s\n", params.Addr, endpoint)
 
-	return http.ListenAndServe(params.Addr, proxy)
+	http.HandleFunc("/readyz", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte("Ready!"))
+	})
+
+	http.Handle("/", proxy)
+
+	return http.ListenAndServe(params.Addr, nil)
 }
 
 // Helper function to generate basic auth value.
