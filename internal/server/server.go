@@ -48,11 +48,19 @@ func Run(params RunParams) error {
 
 	d := proxy.Director
 
+	// Don't recompute this for every request...
+	basicAuthHeader := ""
+	if params.Username != "" {
+		basicAuthHeader = fmt.Sprintf("Basic %s", basicAuth(params.Username, params.Password))
+	}
+
 	proxy.Director = func(r *http.Request) {
 		d(r) // call default director
 
-		if params.Username != "" {
-			r.Header.Add("Authorization", "Basic "+basicAuth(params.Username, params.Password))
+		if basicAuthHeader != "" {
+			r.Header.Add("Authorization", basicAuthHeader)
+			// .. or delete basicAuth helper function below, and do:
+			// r.SetBasicAuth(params.Username, params.Password)
 		}
 	}
 
