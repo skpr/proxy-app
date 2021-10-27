@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"net/http/httputil"
 	"net/url"
+	"strings"
 )
 
 // RunParams is passed to the Run() function.
@@ -18,6 +19,8 @@ type RunParams struct {
 	Username string
 	// Password which will be used to authenticate with the proxy endpoint with basic authentication.
 	Password string
+	// PathPrefix which will be removed from backend requests.
+	PathPrefix string
 }
 
 // Validate the server parameters.
@@ -61,6 +64,10 @@ func Run(params RunParams) error {
 			r.Header.Add("Authorization", basicAuthHeader)
 			// .. or delete basicAuth helper function below, and do:
 			// r.SetBasicAuth(params.Username, params.Password)
+		}
+
+		if params.PathPrefix != "" {
+			r.URL.Path = strings.Replace(r.URL.Path, params.PathPrefix, "", 1)
 		}
 	}
 
