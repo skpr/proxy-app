@@ -67,7 +67,7 @@ func Run(params RunParams) error {
 		}
 
 		if params.PathPrefix != "" {
-			r.URL.Path = strings.Replace(r.URL.Path, params.PathPrefix, "", 1)
+			r.URL.Path = strings.TrimPrefix(r.URL.Path, params.PathPrefix)
 		}
 	}
 
