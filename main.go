@@ -17,7 +17,7 @@ const (
 	EnvSkprConfigKeyUsername = "PROXY_APP_CONFIG_KEY_USERNAME"
 	// EnvSkprConfigKeyPassword used to load the password value from Skpr config.
 	EnvSkprConfigKeyPassword = "PROXY_APP_CONFIG_KEY_PASSWORD"
-	// EnvSkprConfigKeyPathPrefix used to load the path prefix value from Skpr config.
+	// EnvSkprConfigKeyTrimPathPrefix used to load the path prefix value from Skpr config.
 	EnvSkprConfigKeyTrimPathPrefix = "PROXY_APP_CONFIG_KEY_TRIM_PATH_PREFIX"
 
 	// EnvAddr sets the address for the proxy application.
@@ -28,7 +28,7 @@ const (
 	EnvUsername = "PROXY_APP_USERNAME"
 	// EnvPassword sets the password for the proxy connection.
 	EnvPassword = "PROXY_APP_PASSWORD"
-	// EnvPathPrefix strips the path prefix from backend requests.
+	// EnvTrimPathPrefix strips the path prefix from backend requests.
 	EnvTrimPathPrefix = "PROXY_APP_TRIM_PATH_PREFIX"
 )
 
