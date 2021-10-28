@@ -62,8 +62,6 @@ func Run(params RunParams) error {
 
 		if basicAuthHeader != "" {
 			r.Header.Add("Authorization", basicAuthHeader)
-			// .. or delete basicAuth helper function below, and do:
-			// r.SetBasicAuth(params.Username, params.Password)
 		}
 
 		if params.TrimPathPrefix != "" {
