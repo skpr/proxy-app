@@ -19,8 +19,8 @@ type RunParams struct {
 	Username string
 	// Password which will be used to authenticate with the proxy endpoint with basic authentication.
 	Password string
-	// PathPrefix which will be removed from backend requests.
-	PathPrefix string
+	// TrimPathPrefix from backend requests.
+	TrimPathPrefix string
 }
 
 // Validate the server parameters.
@@ -66,8 +66,8 @@ func Run(params RunParams) error {
 			// r.SetBasicAuth(params.Username, params.Password)
 		}
 
-		if params.PathPrefix != "" {
-			r.URL.Path = strings.TrimPrefix(r.URL.Path, params.PathPrefix)
+		if params.TrimPathPrefix != "" {
+			r.URL.Path = strings.TrimPrefix(r.URL.Path, params.TrimPathPrefix)
 		}
 	}
 

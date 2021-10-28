@@ -18,7 +18,7 @@ const (
 	// EnvSkprConfigKeyPassword used to load the password value from Skpr config.
 	EnvSkprConfigKeyPassword = "PROXY_APP_CONFIG_KEY_PASSWORD"
 	// EnvSkprConfigKeyPathPrefix used to load the path prefix value from Skpr config.
-	EnvSkprConfigKeyPathPrefix = "PROXY_APP_CONFIG_KEY_PATH_PREFIX"
+	EnvSkprConfigKeyTrimPathPrefix = "PROXY_APP_CONFIG_KEY_TRIM_PATH_PREFIX"
 
 	// EnvAddr sets the address for the proxy application.
 	EnvAddr = "PROXY_APP_ADDR"
@@ -29,7 +29,7 @@ const (
 	// EnvPassword sets the password for the proxy connection.
 	EnvPassword = "PROXY_APP_PASSWORD"
 	// EnvPathPrefix strips the path prefix from backend requests.
-	EnvPathPrefix = "PROXY_APP_PATH_PREFIX"
+	EnvTrimPathPrefix = "PROXY_APP_TRIM_PATH_PREFIX"
 )
 
 func main() {
@@ -39,11 +39,11 @@ func main() {
 	}
 
 	params := server.RunParams{
-		Addr:       skprclient.GetWithFallback(os.Getenv(EnvSkprConfigKeyAddr), os.Getenv(EnvAddr)),
-		Endpoint:   skprclient.GetWithFallback(os.Getenv(EnvSkprConfigKeyEndpoint), os.Getenv(EnvEndpoint)),
-		Username:   skprclient.GetWithFallback(os.Getenv(EnvSkprConfigKeyUsername), os.Getenv(EnvUsername)),
-		Password:   skprclient.GetWithFallback(os.Getenv(EnvSkprConfigKeyPassword), os.Getenv(EnvPassword)),
-		PathPrefix: skprclient.GetWithFallback(os.Getenv(EnvSkprConfigKeyPathPrefix), os.Getenv(EnvPathPrefix)),
+		Addr:           skprclient.GetWithFallback(os.Getenv(EnvSkprConfigKeyAddr), os.Getenv(EnvAddr)),
+		Endpoint:       skprclient.GetWithFallback(os.Getenv(EnvSkprConfigKeyEndpoint), os.Getenv(EnvEndpoint)),
+		Username:       skprclient.GetWithFallback(os.Getenv(EnvSkprConfigKeyUsername), os.Getenv(EnvUsername)),
+		Password:       skprclient.GetWithFallback(os.Getenv(EnvSkprConfigKeyPassword), os.Getenv(EnvPassword)),
+		TrimPathPrefix: skprclient.GetWithFallback(os.Getenv(EnvSkprConfigKeyTrimPathPrefix), os.Getenv(EnvTrimPathPrefix)),
 	}
 
 	if err := server.Run(params); err != nil {
