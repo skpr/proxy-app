@@ -7,6 +7,7 @@ import (
 	"net/http/httputil"
 	"net/url"
 	"strings"
+	"time"
 )
 
 // RunParams is passed to the Run() function.
@@ -21,6 +22,8 @@ type RunParams struct {
 	Password string
 	// TrimPathPrefix from backend requests.
 	TrimPathPrefix string
+	// MaxAge applied to a response.
+	MaxAge string
 }
 
 // Validate the server parameters.
@@ -33,6 +36,10 @@ func (p RunParams) Validate() error {
 		return fmt.Errorf("not provided: endpoint")
 	}
 
+	if p.MaxAge == "" {
+		return fmt.Errorf("not provided: max-age")
+	}
+
 	return nil
 }
 
@@ -40,6 +47,11 @@ func (p RunParams) Validate() error {
 func Run(params RunParams) error {
 	if err := params.Validate(); err != nil {
 		return fmt.Errorf("validation failed: %w", err)
+	}
+
+	maxAge, err := time.ParseDuration(params.MaxAge)
+	if err != nil {
+		return fmt.Errorf("failed to parse max age: %w", err)
 	}
 
 	endpoint, err := url.Parse(params.Endpoint)
@@ -67,6 +79,11 @@ func Run(params RunParams) error {
 		if params.TrimPathPrefix != "" {
 			r.URL.Path = strings.TrimPrefix(r.URL.Path, params.TrimPathPrefix)
 		}
+	}
+
+	proxy.ModifyResponse = func(r *http.Response) error {
+		r.Header.Set("Cache-Control", fmt.Sprintf("max-age:%v, public", maxAge.Seconds()))
+		return nil
 	}
 
 	// Debug messaging - also add target to LB.
