@@ -82,7 +82,7 @@ func Run(params RunParams) error {
 	}
 
 	proxy.ModifyResponse = func(r *http.Response) error {
-		r.Header.Set("Cache-Control", fmt.Sprintf("max-age:%v, public", maxAge.Seconds()))
+		r.Header.Set("Cache-Control", fmt.Sprintf("max-age=%v, public", maxAge.Seconds()))
 		return nil
 	}
 
