@@ -73,7 +73,7 @@ func Run(params RunParams) error {
 		d(r) // call default director
 
 		if basicAuthHeader != "" {
-			r.Header.Add("Authorization", basicAuthHeader)
+			r.Header.Set("Authorization", basicAuthHeader)
 		}
 
 		if params.TrimPathPrefix != "" {
