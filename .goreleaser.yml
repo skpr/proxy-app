@@ -38,3 +38,4 @@ dockers:
       - go.sum
       - go.mod
       - LICENSE
+      - example
