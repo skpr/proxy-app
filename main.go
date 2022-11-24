@@ -2,9 +2,11 @@ package main
 
 import (
 	"errors"
+	"fmt"
 	"os"
 
 	skprconfig "github.com/skpr/go-config"
+	"github.com/skpr/proxy-app/internal/config"
 	"github.com/skpr/proxy-app/internal/server"
 )
 
@@ -19,8 +21,6 @@ const (
 	EnvSkprConfigKeyPassword = "PROXY_APP_CONFIG_KEY_PASSWORD"
 	// EnvSkprConfigKeyTrimPathPrefix used to load the path prefix value from Skpr config.
 	EnvSkprConfigKeyTrimPathPrefix = "PROXY_APP_CONFIG_KEY_TRIM_PATH_PREFIX"
-	// EnvSkprConfigKeyMaxAge used to set the max-age for all responses.
-	EnvSkprConfigKeyMaxAge = "PROXY_APP_CONFIG_KEY_MAX_AGE"
 
 	// EnvAddr sets the address for the proxy application.
 	EnvAddr = "PROXY_APP_ADDR"
@@ -32,8 +32,8 @@ const (
 	EnvPassword = "PROXY_APP_PASSWORD"
 	// EnvTrimPathPrefix strips the path prefix from backend requests.
 	EnvTrimPathPrefix = "PROXY_APP_TRIM_PATH_PREFIX"
-	// EnvMaxAge used to set the max-age for all responses.
-	EnvMaxAge = "PROXY_APP_MAX_AGE"
+	// EnvConfigFilePath is used to load a file which configures this app's advanced behaviours.
+	EnvConfigFilePath = "PROXY_APP_CONFIG_FILE_PATH"
 )
 
 func main() {
@@ -48,10 +48,16 @@ func main() {
 		Username:       skprclient.GetWithFallback(os.Getenv(EnvSkprConfigKeyUsername), os.Getenv(EnvUsername)),
 		Password:       skprclient.GetWithFallback(os.Getenv(EnvSkprConfigKeyPassword), os.Getenv(EnvPassword)),
 		TrimPathPrefix: skprclient.GetWithFallback(os.Getenv(EnvSkprConfigKeyTrimPathPrefix), os.Getenv(EnvTrimPathPrefix)),
-		MaxAge:         skprclient.GetWithFallback(os.Getenv(EnvSkprConfigKeyMaxAge), os.Getenv(EnvMaxAge)),
 	}
 
-	if err := server.Run(params); err != nil {
+	configFile, err := config.Load(os.Getenv(EnvConfigFilePath))
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Println(configFile)
+
+	if err := server.Run(params, configFile); err != nil {
 		panic(err)
 	}
 }
