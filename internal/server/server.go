@@ -1,3 +1,4 @@
+// Package server for handling requests.
 package server
 
 import (
@@ -81,7 +82,7 @@ func Run(params RunParams, config config.File) error {
 	// Debug messaging - also add target to LB.
 	fmt.Printf("Starting proxy on addr: %s for endpoint: %s\n", params.Addr, endpoint)
 
-	http.HandleFunc("/readyz", func(w http.ResponseWriter, r *http.Request) {
+	http.HandleFunc("/readyz", func(w http.ResponseWriter, _ *http.Request) {
 		w.WriteHeader(http.StatusOK)
 		w.Write([]byte("Ready!"))
 	})

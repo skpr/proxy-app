@@ -1,3 +1,4 @@
+// Package main for application entrypoint.
 package main
 
 import (
