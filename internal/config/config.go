@@ -1,3 +1,4 @@
+// Package config for the redirect application.
 package config
 
 import (
