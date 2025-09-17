@@ -88,7 +88,7 @@ func Run(params RunParams, config config.File) error {
 		_, err = w.Write([]byte("Ready!"))
 	})
 	if err != nil {
-		return fmt.Errorf("Error writing response: %w", err)
+		return fmt.Errorf("error writing response: %w", err)
 	}
 
 	http.Handle("/", proxy)
