@@ -86,10 +86,10 @@ func Run(params RunParams, config config.File) error {
 	http.HandleFunc("/readyz", func(w http.ResponseWriter, _ *http.Request) {
 		w.WriteHeader(http.StatusOK)
 		_, err = w.Write([]byte("Ready!"))
-		if err != nil {
-			fmt.Printf("Error writing response: %s", err)
-		}
 	})
+	if err != nil {
+		return fmt.Errorf("Error writing response: %w", err)
+	}
 
 	http.Handle("/", proxy)
 
