@@ -86,7 +86,7 @@ func Run(params RunParams, config config.File) error {
 		w.WriteHeader(http.StatusOK)
 		_, err = w.Write([]byte("Ready!"))
 		if err != nil {
-			fmt.Printf("Error writing response: %w", err)
+			fmt.Printf("Error writing response: %s", err)
 		}
 	})
 
