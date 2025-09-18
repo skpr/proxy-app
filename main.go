@@ -7,6 +7,7 @@ import (
 	"os"
 
 	skprconfig "github.com/skpr/go-config"
+
 	"github.com/skpr/proxy-app/internal/config"
 	"github.com/skpr/proxy-app/internal/server"
 )
