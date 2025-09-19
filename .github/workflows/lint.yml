@@ -1,22 +1,26 @@
 name: Lint
 
 on:
-  push
+  push:
+    branches:
+      - main
+  pull_request:
+
+permissions:
+  contents: read
 
 jobs:
-  lint:
-    name: 📋 Lint
+  golangci:
+    name: lint
     runs-on: ubuntu-latest
     steps:
-      - name: ⬇️ Git clone the repository
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v5
 
-      - name: 📦 Install Go
-        uses: actions/setup-go@v3
+      - uses: actions/setup-go@v5
         with:
-          go-version: '1.22'
+          go-version-file: 'go.mod'
 
-      - name: 🧪 Revive
-        run: |
-          go install github.com/mgechev/revive@latest
-          make lint
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v8
+        with:
+          version: v2.1

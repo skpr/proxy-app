@@ -4,11 +4,12 @@ package server
 import (
 	"encoding/base64"
 	"fmt"
-	"github.com/skpr/proxy-app/internal/config"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
 	"strings"
+
+	"github.com/skpr/proxy-app/internal/config"
 )
 
 // RunParams is passed to the Run() function.
@@ -84,8 +85,11 @@ func Run(params RunParams, config config.File) error {
 
 	http.HandleFunc("/readyz", func(w http.ResponseWriter, _ *http.Request) {
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte("Ready!"))
+		_, err = w.Write([]byte("Ready!"))
 	})
+	if err != nil {
+		return fmt.Errorf("error writing response: %w", err)
+	}
 
 	http.Handle("/", proxy)
 
