@@ -13,13 +13,8 @@ builds:
     goos: [ linux ]
     goarch: [ amd64, arm64 ]
 
-release:
-  prerelease: auto
-  name_template: "Skpr Proxy App {{.Version}}"
-
-  github:
-    owner: skpr
-    name: proxy-app
+checksum:
+  disable: true
 
 dockers:
   - dockerfile: Dockerfile

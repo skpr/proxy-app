@@ -1,4 +1,4 @@
-FROM alpine:latest
+FROM --platform=$BUILDPLATFORM alpine:latest
 
 ENV PROXY_APP_ADDR=":8080"
 ENV PROXY_APP_CONFIG_FILE_PATH="/etc/skpr/proxy-app/config.yaml"
