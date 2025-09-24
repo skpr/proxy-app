@@ -1,4 +1,5 @@
 project_name: proxy-app
+version: 2
 
 builds:
   - id: proxy-app
@@ -10,7 +11,7 @@ builds:
       - CGO_ENABLED=0
       - GO111MODULE=on
     goos: [ linux ]
-    goarch: [ amd64 ]
+    goarch: [ amd64, arm64 ]
 
 release:
   prerelease: auto
@@ -21,21 +22,40 @@ release:
     name: proxy-app
 
 dockers:
-  - binaries:
-      - proxy-app
-    builds:
-      - proxy-app
+  - dockerfile: Dockerfile
     image_templates:
-      - skpr/proxy-app:latest
-      - skpr/proxy-app:{{ .Tag }}
-    dockerfile: Dockerfile
+      - "ghcr.io/skpr/proxy-app:v{{ .Version }}-amd64"
+      - "ghcr.io/skpr/proxy-app:latest-amd64"
     build_flag_templates:
       - "--pull"
+      - "--platform=linux/amd64"
+    use: buildx
+    goarch: amd64
     extra_files:
-      - internal
-      - vendor
-      - main.go
-      - go.sum
-      - go.mod
       - LICENSE
       - example
+  - dockerfile: Dockerfile
+    image_templates:
+      - "ghcr.io/skpr/proxy-app:v{{ .Version }}-arm64"
+      - "ghcr.io/skpr/proxy-app:latest-arm64"
+    build_flag_templates:
+      - "--pull"
+      - "--platform=linux/arm64"
+    use: buildx
+    goarch: arm64
+    extra_files:
+      - LICENSE
+      - example
+
+docker_manifests:
+  - name_template: "ghcr.io/skpr/proxy-app:v{{ .Version }}"
+    image_templates:
+      - "ghcr.io/skpr/proxy-app:v{{ .Version }}-amd64"
+      - "ghcr.io/skpr/proxy-app:v{{ .Version }}-arm64"
+  - name_template: "ghcr.io/skpr/proxy-app:latest"
+    image_templates:
+      - "ghcr.io/skpr/proxy-app:latest-amd64"
+      - "ghcr.io/skpr/proxy-app:latest-arm64"
+
+changelog:
+  use: github-native
