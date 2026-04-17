@@ -50,33 +50,32 @@ func Run(params RunParams, config config.File) error {
 		return fmt.Errorf("failed to parse endpoint: %w", err)
 	}
 
-	proxy := httputil.NewSingleHostReverseProxy(endpoint)
-
 	// Don't recompute this for every request...
 	basicAuthHeader := ""
 	if params.Username != "" {
 		basicAuthHeader = fmt.Sprintf("Basic %s", basicAuth(params.Username, params.Password))
 	}
 
-	proxy.Rewrite = func(r *httputil.ProxyRequest) {
-		r.SetURL(endpoint)
-		r.SetXForwarded()
+	proxy := &httputil.ReverseProxy{
+		Rewrite: func(r *httputil.ProxyRequest) {
+			r.SetURL(endpoint)
+			r.SetXForwarded()
 
-		if basicAuthHeader != "" {
-			r.Out.Header.Set("Authorization", basicAuthHeader)
-		}
+			if basicAuthHeader != "" {
+				r.Out.Header.Set("Authorization", basicAuthHeader)
+			}
 
-		if params.TrimPathPrefix != "" {
-			r.Out.URL.Path = strings.TrimPrefix(r.Out.URL.Path, params.TrimPathPrefix)
-		}
-	}
+			if params.TrimPathPrefix != "" {
+				r.Out.URL.Path = strings.TrimPrefix(r.Out.URL.Path, params.TrimPathPrefix)
+			}
+		},
+		ModifyResponse: func(r *http.Response) error {
+			for headerKey, headerValue := range config.ResponseHeaders {
+				r.Header.Set(headerKey, headerValue)
+			}
 
-	proxy.ModifyResponse = func(r *http.Response) error {
-		for headerKey, headerValue := range config.ResponseHeaders {
-			r.Header.Set(headerKey, headerValue)
-		}
-
-		return nil
+			return nil
+		},
 	}
 
 	// Debug messaging - also add target to LB.
