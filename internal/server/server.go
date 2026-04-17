@@ -52,23 +52,22 @@ func Run(params RunParams, config config.File) error {
 
 	proxy := httputil.NewSingleHostReverseProxy(endpoint)
 
-	d := proxy.Director
-
 	// Don't recompute this for every request...
 	basicAuthHeader := ""
 	if params.Username != "" {
 		basicAuthHeader = fmt.Sprintf("Basic %s", basicAuth(params.Username, params.Password))
 	}
 
-	proxy.Director = func(r *http.Request) {
-		d(r) // call default director
+	proxy.Rewrite = func(r *httputil.ProxyRequest) {
+		r.SetURL(endpoint)
+		r.SetXForwarded()
 
 		if basicAuthHeader != "" {
-			r.Header.Set("Authorization", basicAuthHeader)
+			r.Out.Header.Set("Authorization", basicAuthHeader)
 		}
 
 		if params.TrimPathPrefix != "" {
-			r.URL.Path = strings.TrimPrefix(r.URL.Path, params.TrimPathPrefix)
+			r.Out.URL.Path = strings.TrimPrefix(r.Out.URL.Path, params.TrimPathPrefix)
 		}
 	}
 
