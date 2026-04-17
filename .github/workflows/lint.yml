@@ -1,4 +1,4 @@
-name: Lint
+name: golangci-lint
 
 on:
   push:
@@ -14,13 +14,12 @@ jobs:
     name: lint
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
-      - uses: actions/setup-go@v5
-        with:
-          go-version-file: 'go.mod'
+      - name: 📦 Install Mise
+        run: |
+          curl https://mise.run | sh
+          mise install
 
-      - name: golangci-lint
-        uses: golangci/golangci-lint-action@v8
-        with:
-          version: v2.4
+      - name: lint
+        run: mise lint
